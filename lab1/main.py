@@ -1,4 +1,5 @@
 import half_div
+import newton
 from test_env import get_keys, build_plot
 from termcolor import cprint
 
@@ -22,7 +23,9 @@ else:
 	print('Введите eps:')
 	eps = float(input())
 
-res = half_div.half(a, b, eps)
-print('-------------------------Results-------------------------')
-cprint(f"x = {res[0]}, f(x) = {res[1]:.10f}, итераций {res[2]}", 'yellow')
-print('---------------------------------------------------------')
+half_div_res = half_div.half(a, b, eps)
+newton_res = newton.newton(a, b, eps)
+print('-------------------------------------Results-------------------------------------')
+cprint(f"1. Half dividing: x = {half_div_res[0]}, f(x) = {half_div_res[1]:.10f}, {half_div_res[2]} iterations", 'yellow')
+cprint(f"2. Newton: x = {newton_res[0]}, f(x) = {newton_res[1]:.10f}, {newton_res[2]} iterations", 'yellow')
+print('---------------------------------------------------------------------------------')

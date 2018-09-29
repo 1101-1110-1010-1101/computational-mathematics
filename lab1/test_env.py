@@ -22,3 +22,11 @@ def build_plot():
     y = (x**3) + (4.81 * x**2) - (17.37 * x) + 5.38
     plt.plot(x, y)
     plt.savefig('foo.png')
+
+def fun(x, coef_0 = 1, coef_1 = 4.81, coef_2 = -17.37, coef_3 = 5.38):
+    return (coef_0 * x**3) + (coef_1 * x**2) + (coef_2 * x) + coef_3
+
+def validate(a, b):
+  if fun(a)*fun(b) < 0:
+    return True
+  else: return False
