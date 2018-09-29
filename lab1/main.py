@@ -1,5 +1,6 @@
 import half_div
-from test_env import get_keys
+from test_env import get_keys, build_plot
+from termcolor import cprint
 
 keys = get_keys()
 
@@ -22,4 +23,6 @@ else:
 	eps = float(input())
 
 res = half_div.half(a, b, eps)
-print(f"x = {res[0]}, f(x) = {res[1]:.10f}, итераций {res[2]}")
+print('-------------------------Results-------------------------')
+cprint(f"x = {res[0]}, f(x) = {res[1]:.10f}, итераций {res[2]}", 'yellow')
+print('---------------------------------------------------------')
