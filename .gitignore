@@ -2,3 +2,5 @@
 lab1/__pycache__/
 lab1/result
 lab1/example
+lab1/report/*
+!lab1/report/*.tex

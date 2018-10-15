@@ -1,0 +1,141 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[a4paper, includeheadfoot, mag=1000, left=2cm, right=1.5cm, top=1.5cm, bottom=1.5cm, headsep=0.8cm, footskip=0.8cm]{geometry}
+% Fonts
+\usepackage{fontspec, unicode-math}
+\setmainfont[Ligatures=TeX]{CMU Serif}
+\setmonofont{CMU Typewriter Text}
+\usepackage[english, russian]{babel}
+% Indent first paragraph
+\usepackage{indentfirst}
+\setlength{\parskip}{5pt}
+% Page headings
+\usepackage{fancyhdr}
+% Diagrams
+\usepackage{graphicx}
+% Code listing
+\usepackage{listings}
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{16pt}
+\newfontfamily\namefont[Scale=1.2]{Gloria Hallelujah}
+\fancyhead{}
+% Use case template
+
+\begin{document}
+
+% Title page
+\include{spectitlepage}
+
+\section*{Цель}
+Написать программу для реализации поиска корней нелинейных уравнений методами половинного деления и Ньютона
+
+\section*{Порядок выполнения}
+Построить график данной функции, таблицы работы методов для нахождения корней кубического уравнения. 
+\subsection*{Функция} 
+$x^3 + 4.81 * x^2 - 17.37 * x + 5.38$
+\subsection*{Корни}
+$x = -7.29292; x = 0.34506; x = 2.1378$
+
+\section*{Рабочие формулы методов}
+\subsection*{Половинного деления}
+$$ x_i = \frac{a_i + b_i}{2} $$
+\subsection*{Ньютона}
+$$ x_n = x_{n-1} - \frac{f(x_{n-1})}{f`(x_{n-1})} $$
+
+\section*{Реализация на языке Python}
+\begin{lstlisting}[language=Python]
+def half(a, b, eps, i = 1, iter_meta = [["i", "a", "b", "x", "f(a)", "f(b)", "f(x)", "len"]]):
+  x_0 = (a + b)/2
+
+  l = interval_len(a, b)
+
+  iter_meta.append([i,round(a, 3),round(b, 3),round(x_0, 3),round(fun(a), 3),round(fun(b), 3),round(fun(x_0), 3),round(l, 3)])
+
+  if abs(fun(x_0)) <= eps:
+    return [x_0, fun(x_0), i, iter_meta]
+
+  if validate(a, x_0):
+    return half(a, x_0, eps, i + 1, iter_meta)
+  else:
+    return half(x_0, b, eps, i + 1, iter_meta)
+
+def newton(x_0, eps, iter_meta = []):
+    i = 1
+    if (abs(derivative(x_0)) < eps):
+        return None
+    x = x_0 - (fun(x_0)/derivative(x_0))
+    while (abs(fun(x_0)) > eps):
+        i += 1
+        x = x_0 - (fun(x_0)/derivative(x_0))
+        iter_meta.append([i, round(x_0, 3), round(fun(x_0), 3), round(derivative(x_0), 3), round(x, 3), round(abs(x_0 - x), 3)])
+        x_0 = x
+    return [x_0, fun(x_0), iter_meta, i]
+
+def fun(x, coef_0 = 1, coef_1 = 4.81, coef_2 = -17.37, coef_3 = 5.38):
+    return (coef_0 * x**3) + (coef_1 * x**2) + (coef_2 * x) + coef_3
+
+def validate(a, b):
+    if fun(a)*fun(b) < 0:
+        return True
+    else: return False
+
+def interval_len(a, b):
+    if a < 0 and b > 0:
+        l = b + abs(a)
+    elif a < 0 and b < 0:
+        l = abs(a) - abs(b)
+    else: l = b - a
+    return l
+
+def derivative(x, coef_0 = 1, coef_1 = 4.81, coef_2 = -17.37):
+    return fun(x, 0, 3*coef_0, 2*coef_1, coef_2)
+
+def second_deriative(x, coef_0 = 1, coef_1 = 4.81, coef_2 = -17.37):
+    return fun(x, 0, 0, 6*coef_0, 2*coef_1)
+\end{lstlisting}
+
+\section*{График функции}
+\includegraphics{plot.png}
+
+\section*{Вывод программы}
+\subsection*{Первый корень}
+
+1. Half dividing: x = -7.29296875, f(x) = -0.0037679935, 8 iterations
+
+2. Newton: x = -7.292917437647474, f(x) = -0.000071813616382, 4 iterations
+
+\includegraphics{first_root.png}
+
+\subsection*{Второй корень}
+
+1. Half dividing: x = 0.345703125, f(x) = -0.0087018463, 9 iterations
+
+2. Newton: x = 0.34506238308748477, f(x) = 0.000069622187341, 5 iterations
+
+\includegraphics{second_root.png}
+
+\subsection*{Третий корень}
+
+1. Half dividing: x = 2.1376953125, f(x) = -0.0025977225, 10 iterations
+
+2. Newton: x = 2.137995782478928, f(x) = 0.002482390999789, 3 iterations
+
+\includegraphics{third_root.png}
+
+\section*{Вывод}
+В ходе выполнения данной лабораторной работы были реализованы методы половинного деления и Ньютона и обнаружены следующие недостатки и 
+достоинства каждого из них:
+\begin{itemize}
+  \item Половинного деления:
+  \begin{itemize}
+    \item Линейная сходимость
+    \item Простая рабочая формула
+  \end{itemize}
+  \item Ньютона
+  \begin{itemize}
+    \item Квадратичная сходимость
+    \item Вычисление производной для каждой итерации
+    \item Чувствительность к выбору первого приближения
+  \end{itemize}
+\end{itemize}
+\end{document}
