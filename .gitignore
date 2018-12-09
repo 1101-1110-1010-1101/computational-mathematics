@@ -4,3 +4,4 @@ lab1/result
 lab1/example
 lab1/report/*
 !lab1/report/*.tex
+lab2/*.txt
