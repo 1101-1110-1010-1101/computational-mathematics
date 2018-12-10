@@ -1,0 +1,135 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[a4paper, includeheadfoot, mag=1000, left=2cm, right=1.5cm, top=1.5cm, bottom=1.5cm, headsep=0.8cm, footskip=0.8cm]{geometry}
+% Fonts
+\usepackage{fontspec, unicode-math}
+\setmainfont[Ligatures=TeX]{CMU Serif}
+\setmonofont{CMU Typewriter Text}
+\usepackage[english, russian]{babel}
+% Indent first paragraph
+\usepackage{indentfirst}
+\setlength{\parskip}{5pt}
+% Page headings
+\usepackage{fancyhdr}
+% Diagrams
+\usepackage{graphicx}
+% Code listing
+\usepackage{listings}
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{16pt}
+%\newfontfamily\namefont[Scale=1.2]{Gloria Hallelujah}
+\fancyhead{}
+% Use case template
+
+\begin{document}
+
+% Title page
+\include{spectitlepage}
+
+\section*{Цель}
+Написать программу для поиска функции, являющейся наилучшим приближением заданной
+табличной функции по методу наименьших квадратов.
+
+\section*{Порядок выполнения}
+\begin{itemize}
+  \item Вычислить меру отклонения S для каждой из исследуемых функций
+  \item Уточнить значения коэффициентов эмпирических функций a, b и c
+  \item Сформировать массивы предполагаемых эмпирических зависимостей
+  \item Определить среднеквадратичное отклонение для каждой из исследуемых
+    функций и выбрать самую эффективную
+  \item Построить графики полученных эмпирических функций
+\end{itemize}
+
+\subsection*{Функция} 
+\begin{center}
+  \begin{tabular}{c c c c c c c c c c c c}
+    x & 2.0 & 2.7 & 3.4 & 4.1 & 4.8 & 5.5 & 6.2 & 6.9 & 7.6 & 8.3 & 9.0 \\
+    y & 0.22 & 1.11 & 2.23 & 3.34 & 4.45 & 5.27 & 6.41 & 7.34 & 8.47 & 9.5 & 10.23
+  \end{tabular}
+\end{center}
+\section*{Рабочие формулы методов}
+\[S = \sum_{i=1}^n (\varphi(x_i) - y_i)^2\] 
+\[\delta = \sqrt{\frac{\sum_{i=1}^n (\varphi(x_i) - y_i)^2}{n}}\]
+Для линейной аппроксимации:
+\[a = \frac{n\sum x_i y_i - \sum x_i \cdot \sum y_i}{n\sum x_i^2 - \sum x_i \cdot \sum x_i}, b = \frac{\sum x_i^2 \sum y_i - \sum x_i \sum x_i y_i}{n\sum x_i^2 - \sum x_i \cdot \sum x_i}\]
+Для квадратичной аппроксимации:
+\begin{center}
+  \includegraphics[scale = 0.5]{square_appr_formula}
+\end{center}
+Для применения метода наименьших квадратов экспоненциальная функция линеаризуется:
+\[ln(a^{ebx}) = ln(a) + bx\]
+Получим линейную зависимость $Y = AX + B$, после определения коэффициентов A и B
+вернемся к изначальным определениям: $a = e^A, b = B$.
+
+Как и в случае экспоненциальной аппроксимации, для $\varphi(x) = a + bln(x)$ 
+вводятся обозначения $Y = y, X = ln(x), A = a, B = b$. После определения
+линейных коэффициентов восстановим $a = A$ и $b = B$.
+
+Введем для степенной аппроксимации $\varphi(x) = ax^b$ обозначения $Y = ln(\varphi(x)), X = ln(x), A = ln(a), B = b$,
+найдем линейные коэффициенты $A$ и $B$, выразим $a$ и $b$ обратно: $a = e^A, b = B$.
+
+\section*{Реализация на языке Python}
+
+\begin{lstlisting}[language = Python]
+def linear_approximation(xs, ys):
+    a = (sxy(xs, ys)*len(xs) - sx(xs)*sx(ys))/(sxx(xs)*len(xs) - sx(xs)**2)
+    b = (sxx(xs)*sx(ys) - sx(xs)*sxy(xs, ys))/(sxx(xs)*len(xs) - sx(xs)**2)
+    return [a, b]
+
+# a3, a2, a1
+def square_approximation(xs, ys):
+    left = np.array([
+                     [len(xs), sx(xs), sxx(xs)],
+                     [sx(xs), sxx(xs), pow_n(xs, 3)],
+                     [sxx(xs), pow_n(xs, 3), pow_n(xs, 4)]
+                    ])
+    right = np.array([sx(ys), sxy(xs, ys), sxxy(xs, ys)])
+    return np.linalg.solve(left, right)
+
+def exponent_approximation(xs, ys):
+    new_y = np.array([])
+    for i in ys:
+        new_y = np.append(new_y, [math.log(i, math.exp(1))])
+    res = linear_approximation(xs, new_y)
+    res[0] = math.exp(res[0])
+    return res
+
+def power_approximation(xs, ys):
+    new_y = np.array([])
+    for i in ys:
+        new_y = np.append(new_y, [math.log(i, math.exp(1))])
+    new_x = np.array([])
+    for i in xs:
+        new_x = np.append(new_x, [math.log(i, math.exp(1))])
+    res = linear_approximation(new_x, new_y)
+    res[0] = math.exp(res[0])
+    return res
+
+def logarithmic_approximation(xs, ys):
+    new_x = np.array([])
+    for i in xs:
+        new_x = np.append(new_x, [math.log(i, math.exp(1))])
+    return linear_approximation(new_x, ys)
+\end{lstlisting}
+
+\section*{Вывод программы для заданной функции}
+\subsection*{Линейная аппроксимация}
+\includegraphics[scale = 0.7]{linear}
+\subsection*{Квадратичная аппроксимация}
+\includegraphics[scale = 0.7]{square}
+\subsection*{Экспоненциальная аппроксимация}
+\includegraphics[scale = 0.7]{exponent}
+\subsection*{Логарифмическая аппроксимация}
+\includegraphics[scale = 0.7]{logarithm}
+\subsection*{Степенная аппроксимация}
+\includegraphics[scale = 0.7]{power}
+\subsection*{Анализ результатов работы}
+\includegraphics[scale = 0.7]{result_table}
+
+\section*{Вывод}
+В ходе проделанной работы были вычислены меры отклонения для линейной,
+квадратичной, экспоненциальной, степенной и логарифмической функций.
+По методу наименьших квадратов было выявлено, что наилучшим приближением для
+заданной табличной функции является квадратичная функция.
+
+\end{document}
