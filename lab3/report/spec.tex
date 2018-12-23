@@ -1,0 +1,289 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[a4paper, includeheadfoot, mag=1000, left=2cm, right=1.5cm, top=1.5cm, bottom=1.5cm, headsep=0.8cm, footskip=0.8cm]{geometry}
+% Fonts
+\usepackage{fontspec, unicode-math}
+\setmainfont[Ligatures=TeX]{CMU Serif}
+\setmonofont{CMU Typewriter Text}
+\usepackage[english, russian]{babel}
+% Indent first paragraph
+\usepackage{indentfirst}
+\setlength{\parskip}{5pt}
+% Page headings
+\usepackage{fancyhdr}
+% Diagrams
+\usepackage{graphicx}
+% Code listing
+\usepackage{listings}
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{16pt}
+%\newfontfamily\namefont[Scale=1.2]{Gloria Hallelujah}
+\fancyhead{}
+% Use case template
+
+\begin{document}
+
+% Title page
+\include{spectitlepage}
+
+\section*{Цели и задачи}
+Решить задачу интерполяции: найти значения функции при заданных значениях
+аргумента, отличных от узловых точек.
+
+Для исследования использовать:
+\begin{itemize}
+  \item линейную и квадратичную интерполяцию;
+  \item многочлен Лагранжа;
+  \item многочлен Ньютона.
+\end{itemize}
+
+\section*{Рабочие формулы}
+\subsection*{Линейная интерполяция}
+Уравнения каждого отрезка ломаной линии в общем случае разные. Поскольку
+имеется n интервалов, то для  каждого из них в качестве  уравнения
+интерполяционного полинома используется уравнение прямой, проходящей через
+две точки. В частности, для i-го интервала можно написать уравнение прямой,
+проходящей через точки $(x_{i-1}, y_{i-1})$ и $(x_i, y_i)$ в виде:
+\[\frac{y - y_{i-1}}{y_i - y_{i-1}} = \frac{x - x_{i-1}}{x_i - x_{i-1}}\]
+Отсюда: $y = a_ix + b_i$ на промежутке $[x_{i-1}, x_i]$
+$$a_i = \frac{y_i - y_{y-1}}{x_i - x_{i-1}} (1), b_i = y_{i-1} - a_ix_{i-1} (2)$$
+
+\subsection*{Квадратичная интерполяция}
+В качестве интерполяционной функции принимается квадратный трехчлен на отрезке
+$[x_{i-1}, x_{i+1}]$
+
+Неизвестные коэффициетны a, b и c находим из условий прохождения параболы
+через три данные точки:
+$$a_ix_{i-1}^2 + b_ix_{i-1} + c_i = y_{i-1}$$
+$$a_ix_i^2 + b_ix_i + c_i = y_i$$
+$$a_ix_{i+1}^2 + b_ix_{i+1} + c_i = y_{i+1} (3)$$
+
+\subsection*{Многочлен Лагранжа}
+Неизвестные значения функции $f(x) = y$ вычисляются как значения
+интерполяционного многочлена Лагранжа $Ln(x)$, который принимает данные
+значения $y_0, ..., y_i$ в наборе точек $x_0, ..., x_i$.
+$$Ln(x) = \sum_{i=0}^{n-1} y_i \prod_{j=0,\ j\neq i}^{n-1} \frac{x - x_j}{x_i - x_j}$$
+
+\subsection*{Интерполяционные формулы Ньютона для равноотстоящих узлов}
+Если узлы интерполяции равноотстоящие и упорядочены по величине, то есть
+$x_{i+1} - x_i = h = const$, то интерполяционный многочлен может быть записан
+в форме Ньютона.
+
+Прямая формула:
+$$Nn(x) = y_i + t\Delta y_i + \frac{t(t-1)}{2!}\Delta^2 y_i + ... + \frac{\prod_{j=0}^{n-1} (t-j)}{n!}\Delta^n y_i,\ t = \frac{x - x_i}{h}$$
+Обратная формула:
+$$Nn(x) = y_n + t\Delta y_{n-1} + \frac{t(t+1)}{2!}\Delta^2 y_{n-2} + ... + \frac{\prod_{j=0}^{n-1} (t+j)}{n!}\Delta^n y_0,\ t = \frac{x - x_n}{h}$$
+Где $\Delta^k y$ - конечная разность $k$-го порядка
+
+Конечная разность первого порядка равна $\Delta y_i = y_{i+1} - y_i$
+
+Конечные разности высших порядков выражаются как:
+$$\Delta^k y_i = \Delta^{k-1} y_{i+1} - \Delta^{k-1} y_i$$
+\subsection*{Интерполяционная формула Ньютона для неравноотстоящих узлов}
+$$Nn(x) = f(x_0) + \sum_{k=1}^n f(x_0, x_1, ..., x_k) \prod_{j=0}^{k-1} (x - x_j)$$
+Где $f(x_0, ..., x_k)$ — разделенные разности $k$-порядка.
+Разделенные разности нулевого порядка равны значению функции в узле,
+то есть $f(x_i) = y_i$; разности высших порядков выражаются как:
+$$f(x_i, x_{i+1}, ..., x_{i+k}) = \frac{f(x_{i+1}, ..., x_{i+k}) - f(x_i, ..., x_{i+k-1})}{x_{i+k} - x_i}$$
+
+\section*{Вычисление значения функции в заданной точке методами линейной
+  и квадратичной интерполяции}
+\subsection*{Линейная интерполяция}
+$x = 0.312$. Табличное задание функции - см.табл.1
+
+Определим интервал, в который входит этот x.
+Интервал: $[0.31, 0.317]$
+
+Соответствующие значения функции: $3.1218, 3.0482$.
+Определим коэффициенты a и b по формулам (1) и (2)
+
+$a = -10.51428571428569, b = 6.381228571428563$
+
+Найдем значение функции $a*x+b$ в точке x
+
+$f(x) =  3.100771428571428$
+
+\subsection*{Квадратичная интерполяция}
+$x = 0.312$. Табличное задание функции - см.табл.1
+
+Определим интервал, в который входит этот x.
+Интервал: $[0.31, 0.317, 0.323]$
+
+Соответствующие значения функции: $3.1218, 3.0482, 2.9875$.
+Составим систему уравнений(3) и решим её
+
+$a = 30.58608058608058, b = -29.691758241758222, c = 9.386922710622704$
+
+Найдем значение функции $a*x^2 + bx + c$ в точке x
+
+$f(x) =  3.100465567765567$
+
+Полученный график можно увидеть в Приложении 1
+
+\section*{Листинг программы}
+\begin{lstlisting}[language = Python]
+  from math import factorial
+
+def linear_interpolation(xs, ys, x):
+    x_i = min([d for d in xs if d > x])
+    x_i_minus_1 = xs[np.where(xs == x_i)[0][0] - 1]
+    y_i = ys[np.where(xs == x_i)[0][0]]
+    y_i_minus_1 = ys[np.where(xs == x_i_minus_1)[0][0]]
+
+    a_i = (y_i - y_i_minus_1) / (x_i - x_i_minus_1)
+    b_i = y_i_minus_1 - a_i * x_i_minus_1
+
+    y_x = a_i * x + b_i
+
+    return y_x
+
+def square_interpolation(xs, ys, x):
+    x_i = min([d for d in xs if d > x])
+    x_i_minus_1 = xs[np.where(xs == x_i)[0][0] - 1]
+    x_i_plus_1 = xs[np.where(xs == x_i)[0][0] + 1]
+
+    y_i = ys[np.where(xs == x_i)[0][0]]
+    y_i_minus_1 = ys[np.where(xs == x_i_minus_1)[0][0]]
+    y_i_plus_1 = ys[np.where(xs == x_i_plus_1)[0][0]]
+
+    c = np.linalg.solve(
+        [
+            [x_i_minus_1**2, x_i_minus_1, 1],
+            [x_i**2, x_i, 1],
+            [x_i_plus_1**2, x_i_plus_1, 1]
+        ],
+        [y_i_minus_1, y_i, y_i_plus_1]
+    )
+
+    y_x = c[0] * x**2 + c[1] * x + c[2]
+
+    return y_x
+
+def lagrandge_interpolation(xs, ys, x):
+    y_x = 0.0
+    for i in range(len(xs)):
+        p = 1.0
+        for j in range(len(xs)):
+            if i != j:
+                p *= (x - xs[j]) / (xs[i] - xs[j])
+        y_x += p * ys[i]
+    return y_x
+
+
+def diff_difference(xs, ys):
+    if len(xs) == 2:
+        return (ys[1] - ys[0]) / (xs[1] - xs[0])
+    else:
+        return (diff_difference(xs[1:], ys[1:]) - diff_difference(xs[:-1], ys[:-1])) / (xs[len(xs) - 1] - xs[0])
+
+def difference(ys, k, i):
+    if k == 1:
+        return ys[i + 1] - ys[i]
+    else:
+        return difference(ys, k - 1, i + 1) - difference(ys, k - 1, i)
+
+def newton_interpolation_forward(xs, ys, x):
+    h = xs[1] - xs[0]
+    x_i_index = np.where(xs == min([d for d in xs if d > x]))[0][0]
+    res = 0.0
+    res += ys[x_i_index] # x = y0
+    t = (x - xs[x_i_index]) / h
+    res += t * difference(ys, 1, x_i_index) # x = y0 + t * diff1(y0)
+    for i in range(len(xs) - x_i_index - 2):
+        t = t * (t - i + 1)
+        res += (t / factorial(i + 2)) * difference(ys, i + 2, x_i_index)
+    return res
+
+def newton_interpolation_backward(xs, ys, x):
+    h = xs[1] - xs[0]
+    x_i_index = np.where(xs == min([d for d in xs if d > x]))[0][0]
+    res = 0.0
+    res += ys[len(ys) - 1] # x = y0
+    t = (x - xs[len(xs) - 1]) / h # t = (x - x_n) / h
+    res += t * difference(ys, 1, len(ys) - 2) # x = y0 + t * diff1(y0)
+    for i in range(len(xs) - x_i_index - 2):
+        t = t * (t + i - 1)
+        res += (t / factorial(i + 2)) * difference(ys, i + 2, ys[len(ys) - i + 2])
+    return res
+
+def newton_interpolation_diff(xs, ys, x):
+    x_i = min([d for d in xs if d > x])
+    res = ys[np.where(xs == x_i)[0][0]]
+    for i in range(np.where(xs == x_i)[0][0], len(xs) - 1):
+        p = 1.0
+        xss = xs[np.where(xs == x_i)[0][0]:i + 2]
+        for j in xss[:-1]:
+            p *= (x - j)
+        p *= diff_difference(xss, ys[np.where(xs == x_i)[0][0]:i + 2])
+        res += p
+    return res
+\end{lstlisting}
+
+\section*{Результаты работы программы}
+
+Таблица 1
+
+\includegraphics{tableone}
+
+--$x_1 = 0.312$--
+
+Линейная: 3.100771428571428
+
+Квадратичная: 3.100465567765567
+
+Лагранж: 3.1022054525799443
+
+Ньютон вперед: 3.1089
+
+Ньютон для неравностоящих: 3.100682142857144
+
+--$x_4 = 0.304$--
+
+Линейная: 3.1686
+
+Квадратичная: 3.1697632653061234
+
+Лаграндж: 3.1685564333963003
+
+Ньютон для неравностоящих: 3.186956321839078
+
+Ньютон вперед: 3.2114471650559997
+
+Таблица 2
+
+\includegraphics{tabletwo}
+
+--$x_2 = 0.261$--
+
+Линейная: 1.4582540000000002
+
+Квадратичная: 1.4561347400000009
+
+Лаграндж: 1.088268094932948
+
+Ньютон вперед: 1.4522466969654722
+
+--$x_3 = 0.534$--
+
+Линейная: 7.5426519999999995
+
+Квадратичная: 7.5443492800000005
+
+Лаграндж: 6.939942122243442
+
+Ньютон назад: 7.5426519999999995
+
+\section*{Вывод}
+
+В ходе выполнения данной лабораторной работы я познакомился с основными
+интерполяционными методами
+
+\pagebreak
+
+\section*{Приложение 1. Графики}
+
+\includegraphics[scale = 0.4]{graphic1}
+
+\includegraphics[scale = 0.4]{graphic2}
+
+\end{document}
